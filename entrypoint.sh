@@ -10,11 +10,11 @@ if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
     sed -i "/#/d" /etc/bind/rndc.conf
     mykey=$(cat /etc/bind/rndc.conf | grep secret | sed -r 's/(\s+)secret \"(.*)\";$/\2/g')
     echo "\
-    dns_rfc2136_server = 127.0.0.1
-    dns_rfc2136_port = 953
-    dns_rfc2136_name = acme.
-    dns_rfc2136_secret = $mykey
-    dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
+dns_rfc2136_server = 127.0.0.1
+dns_rfc2136_port = 953
+dns_rfc2136_name = acme.
+dns_rfc2136_secret = $mykey
+dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
     chmod 0600 /etc/letsencrypt/credentials.ini
     
     echo "\
@@ -28,22 +28,7 @@ controls {
     fi
 fi
 
-if [ -z "$@" ]; then
-    # Run in foreground and log to STDERR (console):
-    exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
-else
-    for d in "$@"
-    do
-        certbot certonly --dns-rfc2136 \
-        --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
-        --preferred-challenges dns-01 \
-        --server https://acme-v02.api.letsencrypt.org/directory \
-        --dns-rfc2136-propagation-seconds 30 \
-        --email "${EMAIL}" \
-        -d $d \
-        --agree-tos
-    done
-fi
+exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
 
 # Initial certificate request, but skip if cached
 if [[ "${DOMAIN}" != "server.tld" ]]; then
@@ -64,4 +49,19 @@ if [[ "${DOMAIN}" != "server.tld" ]]; then
    else
       certbot renew
    fi
+fi
+
+if [ ! -z "$@" ]; then
+    extra="$@"
+    for d in $extra
+    do
+        certbot certonly --dns-rfc2136 \
+        --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
+        --preferred-challenges dns-01 \
+        --server https://acme-v02.api.letsencrypt.org/directory \
+        --dns-rfc2136-propagation-seconds 30 \
+        --email "${EMAIL}" \
+        -d ${d} \
+        --agree-tos
+    done
 fi
