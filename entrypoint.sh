@@ -6,12 +6,12 @@ chmod -R 750 /etc/bind
 
 # generate rndc config, if not exists
 if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
-    rndc-confgen -A hmac-sha512 -b 512 -r /dev/urandom -k acme. -a
+    rndc-confgen -A hmac-sha512 -b 512 -r /dev/urandom -k acme -a
     mykey=$(cat /etc/bind/rndc.key | grep secret | sed -r 's/(\s+)secret \"(.*)\";$/\2/g')
     echo "\
 dns_rfc2136_server = 127.0.0.1
 dns_rfc2136_port = 953
-dns_rfc2136_name = acme.
+dns_rfc2136_name = acme
 dns_rfc2136_secret = $mykey
 dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
     chmod 0600 /etc/letsencrypt/credentials.ini
@@ -20,7 +20,7 @@ dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
 include \"/etc/bind/rndc.key\";
 controls {
     inet 127.0.0.1 port 953
-    allow { localhost; } keys { \"acme.\"; };
+    allow { localhost; } keys { \"acme\"; };
 };" > /etc/bind/acme.conf
 
     if [ -z $(grep -Fx 'include "/etc/bind/acme.conf";' /etc/bind/named.conf) ]; then
