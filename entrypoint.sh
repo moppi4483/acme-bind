@@ -5,7 +5,7 @@ chmod -R 770 /var/cache/bind /var/run/named
 chmod -R 750 /etc/bind
 
 # generate rndc config, if not exists
-if [[ ! -f /etc/bind/rndc.conf ]]; then
+if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
     rndc-confgen -A hmac-sha512 -b 512 -r /dev/urandom -k acme. > /etc/bind/rndc.conf
     sed -i "/#/d" /etc/bind/rndc.conf
     mykey=$(cat /etc/bind/rndc.conf | grep secret | sed -r 's/(\s+)secret \"(.*)\";$/\2/g')
