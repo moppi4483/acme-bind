@@ -15,7 +15,7 @@ if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
     dns_rfc2136_name = acme.
     dns_rfc2136_secret = $mykey
     dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
-    chmod 0711 /etc/letsencrypt/credentials.ini
+    chmod 0600 /etc/letsencrypt/credentials.ini
     
     echo "\
 controls {
@@ -28,7 +28,7 @@ controls {
     fi
 fi
 
-if [ -z "$1" ]; then
+if [ -z "$@" ]; then
     # Run in foreground and log to STDERR (console):
     exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
 else
