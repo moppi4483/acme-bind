@@ -15,14 +15,15 @@ if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
     dns_rfc2136_name = acme.
     dns_rfc2136_secret = $mykey
     dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
-
+    chmod 0711 /etc/letsencrypt/credentials.ini
+    
     echo "\
 controls {
     inet 127.0.0.1 port 953
     allow { 127.0.0.1; } keys { \"acme.\"; };
 };" >> /etc/bind/rndc.conf
 
-    if [ ! grep -Fxq 'include "/etc/bind/rndc.conf";' /etc/bind/named.conf ]; then
+    if [ -z $(grep -Fx 'include "/etc/bind/rndc.conf";' /etc/bind/named.conf) ]; then
         sed -i '/options/i\include "/etc/bind/rndc.conf";' /etc/bind/named.conf
     fi
 fi
