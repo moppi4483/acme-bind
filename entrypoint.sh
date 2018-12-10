@@ -33,7 +33,7 @@ if [[ "${DOMAIN}" != "server.tld" ]]; then
         certbot certonly --dns-rfc2136 \
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
         -d ${DOMAIN} \
-        -d *.${DOMAIN} \
+        -d *.${DOMAIN}
    
         cd /etc/letsencrypt
         ln -s live/*.${DOMAIN}/cert.pem cert.pem
