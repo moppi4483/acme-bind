@@ -9,7 +9,7 @@ If you don't need wildcase SSL certificates, you should use normal BIND9 server,
 docker run -p 53:53 -p 53:53/udp -d ventz/bind
 ```
 
-More detail you can read this [documents](https://github.com/ventz/docker-bind). 
+More details you can read this [project](https://github.com/ventz/docker-bind). 
 
 To get LET'S ENCRYPT SSL certificates via DNS, you need to pull and run this container, like below:
 ```
