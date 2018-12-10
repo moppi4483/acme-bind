@@ -1,6 +1,7 @@
 FROM ventz/bind
 
 ENV DOMAIN server.tld
+ENV EMAIL your@mail.addr
 
 ADD entrypoint.sh /entrypoint.sh
 RUN apk update  \

@@ -32,6 +32,7 @@ if [[ "${DOMAIN}" != "server.tld" ]]; then
     if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
         certbot certonly --dns-rfc2136 \
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
+        --email "${EMAIL}" --agree-tos \
         -d ${DOMAIN} \
         -d *.${DOMAIN}
    
@@ -54,6 +55,7 @@ else
         certbot certonly --dns-rfc2136 \
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
         --dns-rfc2136-propagation-seconds 30 \
-        -d $d \
+        --email "${EMAIL}" --agree-tos \
+        -d $d
     done
 fi
