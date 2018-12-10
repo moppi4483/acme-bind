@@ -27,25 +27,6 @@ controls {
     fi
 fi
 
-# Initial certificate request, but skip if cached
-if [[ "${DOMAIN}" != "server.tld" ]]; then
-    if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
-        certbot certonly --dns-rfc2136 \
-        --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
-        --email "${EMAIL}" --agree-tos \
-        -d ${DOMAIN} \
-        -d *.${DOMAIN}
-   
-        cd /etc/letsencrypt
-        ln -s live/*.${DOMAIN}/cert.pem cert.pem
-        ln -s live/*.${DOMAIN}/chain.pem chain.pem
-        ln -s live/*.${DOMAIN}/fullchain.pem fullchain.pem
-        ln -s live/*.${DOMAIN}/privkey.pem privkey.pem  
-   else
-      certbot renew
-   fi
-fi
-
 if [ -z "$1" ]; then
     # Run in foreground and log to STDERR (console):
     exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
@@ -54,8 +35,32 @@ else
     do
         certbot certonly --dns-rfc2136 \
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
+        --preferred-challenges dns-01 \
+        --server https://acme-v02.api.letsencrypt.org/directory \
         --dns-rfc2136-propagation-seconds 30 \
-        --email "${EMAIL}" --agree-tos \
-        -d $d
+        --email "${EMAIL}" \
+        -d $d \
+        --agree-tos
     done
+fi
+
+# Initial certificate request, but skip if cached
+if [[ "${DOMAIN}" != "server.tld" ]]; then
+    if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
+        certbot certonly --dns-rfc2136 \
+        --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
+        --preferred-challenges dns-01 \
+        --server https://acme-v02.api.letsencrypt.org/directory \
+        --email "${EMAIL}" \
+        -d ${DOMAIN} \
+        --agree-tos
+
+        cd /etc/letsencrypt
+        ln -s live/${DOMAIN}/cert.pem cert.pem
+        ln -s live/${DOMAIN}/chain.pem chain.pem
+        ln -s live/${DOMAIN}/fullchain.pem fullchain.pem
+        ln -s live/${DOMAIN}/privkey.pem privkey.pem  
+   else
+      certbot renew
+   fi
 fi
