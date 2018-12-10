@@ -21,7 +21,7 @@ include "/etc/bind/rndc.key";
 controls {
     inet 127.0.0.1 port 953
     allow { localhost; } keys { \"acme.\"; };
-};' >> /etc/bind/rndc.conf
+};' > /etc/bind/rndc.conf
 
     if [ -z $(grep -Fx 'include "/etc/bind/rndc.conf";' /etc/bind/named.conf) ]; then
         sed -i '/options/i\include "/etc/bind/rndc.conf";' /etc/bind/named.conf
