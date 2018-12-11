@@ -28,7 +28,9 @@ controls {
     fi
 fi
 
-exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
+if [ -z $(ps -ef |grep named) ]; then
+    exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
+fi
 
 # Initial certificate request, but skip if cached
 if [[ "${DOMAIN}" != "server.tld" ]]; then
