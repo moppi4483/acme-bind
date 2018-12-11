@@ -6,26 +6,41 @@ chmod -R 750 /etc/bind
 
 # generate rndc config, if not exists
 if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
-    rndc-confgen -A hmac-sha512 -b 512 -r /dev/urandom -k acme -a
-    mykey=$(cat /etc/bind/rndc.key | grep secret | sed -r 's/(\s+)secret \"(.*)\";$/\2/g')
+    b=$(dnssec-keygen -a hmac-sha512 -b 512 -n HOST -K /tmp acme)
+    mykey=$(awk '/^Key/{print $2}' /tmp/$b.private)
+    cat > /etc/bind/acme.key <<EOF
+key "acme" {
+    algorithm hmac-sha512;
+    secret "$mykey";
+};
+EOF
+    rm -f /tmp/$b.{private,key}
     echo "\
 dns_rfc2136_server = 127.0.0.1
-dns_rfc2136_port = 953
+dns_rfc2136_port = 53
 dns_rfc2136_name = acme
 dns_rfc2136_secret = $mykey
 dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
     chmod 0600 /etc/letsencrypt/credentials.ini
     
-    echo "\
-include \"/etc/bind/rndc.key\";
-controls {
-    inet 127.0.0.1 port 953
-    allow { localhost; } keys { \"acme\"; };
-};" > /etc/bind/acme.conf
-
-    if [ -z $(grep -Fx 'include "/etc/bind/acme.conf";' /etc/bind/named.conf) ]; then
-        sed -i '/options/i\include "/etc/bind/acme.conf";' /etc/bind/named.conf
+    if [ -z $(grep -Fx 'include "/etc/bind/acme.key";' /etc/bind/named.conf) ]; then
+        sed -i '/options/i\include "/etc/bind/acme.key";' /etc/bind/named.conf
     fi
+    echo "\
+新增以下內容到想要取得金鑰的領域組態中：
+zone "${DOMAIN}" {
+    type master;
+    allow-update { key "acme"; };
+};
+或
+zone "${DOMAIN}" {
+    type master;
+    update-policy {
+        grant update subdomain ${DOMAIN}.;
+    };
+}
+完成設定後，請重新執行容器。
+"
 fi
 
 if [ -z $(ps -ef | grep named) ]; then
@@ -39,31 +54,33 @@ if [[ "${DOMAIN}" != "server.tld" ]]; then
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
         --preferred-challenges dns-01 \
         --server https://acme-v02.api.letsencrypt.org/directory \
-        --email "${EMAIL}" \
+        --email ${EMAIL} \
         -d ${DOMAIN} \
         --agree-tos
 
-        cd /etc/letsencrypt
-        ln -s live/${DOMAIN}/cert.pem cert.pem
-        ln -s live/${DOMAIN}/chain.pem chain.pem
-        ln -s live/${DOMAIN}/fullchain.pem fullchain.pem
-        ln -s live/${DOMAIN}/privkey.pem privkey.pem  
+        if [ -f /etc/letsencrypt/live/${DOMAIN}/cert.pem ]; then
+            ln -s /etc/letsencrypt/live/${DOMAIN}/cert.pem /etc/letsencrypt/cert.pem
+        fi
+        if [ -f /etc/letsencrypt/live/${DOMAIN}/chain.pem ]; then        
+            ln -s /etc/letsencrypt/live/${DOMAIN}/chain.pem /etc/letsencrypt/chain.pem
+        fi
+        if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then        
+            ln -s /etc/letsencrypt/live/${DOMAIN}/fullchain.pem /etc/letsencrypt/fullchain.pem
+        fi
+        if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then        
+            ln -s /etc/letsencrypt/live/${DOMAIN}/privkey.pem /etc/letsencrypt/privkey.pem
+        fi
    else
       certbot renew
    fi
 fi
 
-if [ ! -z "$@" ]; then
-    extra="$@"
-    for d in $extra
-    do
-        certbot certonly --dns-rfc2136 \
-        --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
-        --preferred-challenges dns-01 \
-        --server https://acme-v02.api.letsencrypt.org/directory \
-        --dns-rfc2136-propagation-seconds 30 \
-        --email "${EMAIL}" \
-        -d ${d} \
-        --agree-tos
-    done
+if [ ! -z "$1" ]; then
+    certbot certonly --dns-rfc2136 \
+    --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
+    --preferred-challenges dns-01 \
+    --server https://acme-v02.api.letsencrypt.org/directory \
+    --email ${EMAIL} \
+    -d $1 \
+    --agree-tos
 fi
