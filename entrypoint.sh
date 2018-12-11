@@ -6,15 +6,14 @@ chmod -R 750 /etc/bind
 
 # generate rndc config, if not exists
 if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
-    b=$(dnssec-keygen -a hmac-sha512 -b 512 -n HOST -K /tmp acme)
-    mykey=$(awk '/^Key/{print $2}' /tmp/$b.private)
+    b=$(tsig-keygen -a hmac-sha512 -r /dev/urandom)
+    mykey=$(echo $b | sed -r "s/(.*)secret \"(.*)\"(.*)$/\2/g")
     cat > /etc/bind/acme.key <<EOF
 key "acme" {
     algorithm hmac-sha512;
     secret "$mykey";
 };
 EOF
-    rm -f /tmp/$b.{private,key}
     echo "\
 dns_rfc2136_server = 127.0.0.1
 dns_rfc2136_port = 53
