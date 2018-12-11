@@ -28,7 +28,7 @@ controls {
     fi
 fi
 
-if [ -z $(ps -ef |grep named) ]; then
+if [ -z $(ps -ef | grep named) ]; then
     exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
 fi
 
