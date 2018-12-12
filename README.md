@@ -21,7 +21,21 @@ docker run -e DOMAIN=your.domain.tld \
 -d leejoneshane/acme-bind
 ```
 
-If you need more SSL certificates __after__ container is running, you should run the command from console like below:
+In the first time startup, SSL certificates generate may not working, becouse you should modify bind __named.conf__ first. Otherwise the certbot plugin has no permission to add TXT record into zone file for you.
+
+please read anbd follow the log messages to do that:
 ```
-docker exec your-container-id www.your.domain.tld www2.your.domain.tld
+docker logs your-container-id
+```
+
+When your modify is done, restart your container instance and try to get the SSL certificates:
+```
+docker exec your-container-id sh
+#>rndc reload //reload named.config 
+#>/entrypoint.sh your.domain.tld //generate SSL certificates
+```
+
+.If you need more SSL certificates __after__ container is running, you should run the command from console like below:
+```
+docker exec your-container-id www.your.domain.tld
 ```
