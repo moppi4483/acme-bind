@@ -35,7 +35,7 @@ docker exec your-container-id sh
 #>/entrypoint.sh your.domain.tld //generate SSL certificates
 ```
 
-.If you need more SSL certificates __after__ container is running, you should run the command from console like below:
+If you need more SSL certificates __after__ container is running, you should run the command from console like below:
 ```
 docker exec your-container-id www.your.domain.tld
 ```
