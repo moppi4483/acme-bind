@@ -54,20 +54,20 @@ if [[ "${DOMAIN}" != "server.tld" ]]; then
         --preferred-challenges dns-01 \
         --server https://acme-v02.api.letsencrypt.org/directory \
         --email ${EMAIL} \
-        -d ${DOMAIN} \
+        -d *.${DOMAIN} \
         --agree-tos
 
-        if [ -f /etc/letsencrypt/live/${DOMAIN}/cert.pem ]; then
-            ln -s /etc/letsencrypt/live/${DOMAIN}/cert.pem /etc/letsencrypt/cert.pem
+        if [ -f /etc/letsencrypt/live/*.${DOMAIN}/cert.pem ]; then
+            ln -s /etc/letsencrypt/live/*.${DOMAIN}/cert.pem /etc/letsencrypt/cert.pem
         fi
-        if [ -f /etc/letsencrypt/live/${DOMAIN}/chain.pem ]; then        
-            ln -s /etc/letsencrypt/live/${DOMAIN}/chain.pem /etc/letsencrypt/chain.pem
+        if [ -f /etc/letsencrypt/live/*.${DOMAIN}/chain.pem ]; then        
+            ln -s /etc/letsencrypt/live/*.${DOMAIN}/chain.pem /etc/letsencrypt/chain.pem
         fi
-        if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then        
-            ln -s /etc/letsencrypt/live/${DOMAIN}/fullchain.pem /etc/letsencrypt/fullchain.pem
+        if [ -f /etc/letsencrypt/live/*.${DOMAIN}/fullchain.pem ]; then        
+            ln -s /etc/letsencrypt/live/*.${DOMAIN}/fullchain.pem /etc/letsencrypt/fullchain.pem
         fi
-        if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then        
-            ln -s /etc/letsencrypt/live/${DOMAIN}/privkey.pem /etc/letsencrypt/privkey.pem
+        if [ -f /etc/letsencrypt/live/*.${DOMAIN}/fullchain.pem ]; then        
+            ln -s /etc/letsencrypt/live/*.${DOMAIN}/privkey.pem /etc/letsencrypt/privkey.pem
         fi
    else
       certbot renew
