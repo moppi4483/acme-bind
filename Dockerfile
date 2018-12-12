@@ -9,6 +9,7 @@ RUN apk update  \
     && rm -rf /var/cache/apk/* \
     && pip install --upgrade pip \
     && pip install certbot-dns-rfc2136 \
+    && echo "0 5 1 * * /usr/bin/certbot renew --no-self-upgrade" > /etc/crontabs/root \
     && chmod 711 /entrypoint.sh
 
 VOLUME ["/etc/letsencrypt", "/etc/bind", "/var/cache/bind"]
