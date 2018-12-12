@@ -4,7 +4,7 @@ chown -R root:named /etc/bind /var/cache/bind /var/run/named
 chmod -R 770 /var/cache/bind /var/run/named
 chmod -R 750 /etc/bind
 
-# generate rndc config, if not exists
+# generate tsig key for update TXT record, if not exists
 if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
     b=$(tsig-keygen -a hmac-sha512 -r /dev/urandom)
     mykey=$(echo $b | sed -r "s/(.*)secret \"(.*)\"(.*)$/\2/g")
