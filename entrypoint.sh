@@ -4,6 +4,10 @@ chown -R root:named /etc/bind /var/cache/bind /var/run/named
 chmod -R 770 /var/cache/bind /var/run/named
 chmod -R 750 /etc/bind
 
+if [ -z $(ps -ef | grep named) ]; then
+    exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
+fi
+
 # generate tsig key for update TXT record, if not exists
 if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
     b=$(tsig-keygen -a hmac-sha512 -r /dev/urandom)
@@ -42,12 +46,15 @@ zone "${DOMAIN}" {
 "
 fi
 
-if [ -z $(ps -ef | grep named) ]; then
-    exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
-fi
-
-# Initial certificate request, but skip if cached
-if [[ "${DOMAIN}" != "server.tld" ]]; then
+if [ ! -z "$1" ]; then
+    certbot certonly --dns-rfc2136 \
+    --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
+    --preferred-challenges dns-01 \
+    --server https://acme-v02.api.letsencrypt.org/directory \
+    --email ${EMAIL} \
+    -d $1 \
+    --agree-tos
+else if [[ "${DOMAIN}" != "server.tld" ]]; then
     if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
         certbot certonly --dns-rfc2136 \
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
@@ -72,14 +79,4 @@ if [[ "${DOMAIN}" != "server.tld" ]]; then
    else
       certbot renew
    fi
-fi
-
-if [ ! -z "$1" ]; then
-    certbot certonly --dns-rfc2136 \
-    --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
-    --preferred-challenges dns-01 \
-    --server https://acme-v02.api.letsencrypt.org/directory \
-    --email ${EMAIL} \
-    -d $1 \
-    --agree-tos
 fi
