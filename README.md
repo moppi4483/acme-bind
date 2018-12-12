@@ -23,7 +23,7 @@ docker run -e DOMAIN=your.domain.tld \
 
 In the first time startup, SSL certificates generate may not working, becouse you should modify bind __named.conf__ first. Otherwise the certbot plugin has no permission to add TXT record into zone file for you.
 
-please read anbd follow the log messages to do that:
+please read and follow the log messages to do that:
 ```
 docker logs your-container-id
 ```
