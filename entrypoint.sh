@@ -26,7 +26,7 @@ dns_rfc2136_secret = $mykey
 dns_rfc2136_algorithm = HMAC-SHA512" > /etc/letsencrypt/credentials.ini
     chmod 0600 /etc/letsencrypt/credentials.ini
     
-    if [ -z $(grep -Fx 'include "/etc/bind/acme.key";' /etc/bind/named.conf) ]; then
+    if [ -z $(grep -F 'include "/etc/bind/acme.key";' /etc/bind/named.conf) ]; then
         sed -i '/options/i\include "/etc/bind/acme.key";' /etc/bind/named.conf
     fi
     echo "\
