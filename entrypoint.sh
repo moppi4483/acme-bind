@@ -4,7 +4,7 @@ chown -R root:named /etc/bind /var/cache/bind /var/run/named
 chmod -R 770 /var/cache/bind /var/run/named
 chmod -R 750 /etc/bind
 
-if [ -z $(ps -ef | grep named) ]; then
+if [ -z $(pgrep named) ]; then
     exec /usr/sbin/named -c /etc/bind/named.conf -g -u named
 fi
 
