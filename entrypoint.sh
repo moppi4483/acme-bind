@@ -54,7 +54,7 @@ if [ ! -z "$1" ]; then
     --email ${EMAIL} \
     -d $1 \
     --agree-tos
-else if [[ "${DOMAIN}" != "server.tld" ]]; then
+elif [[ "${DOMAIN}" != "server.tld" ]]; then
     if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
         certbot certonly --dns-rfc2136 \
         --dns-rfc2136-credentials /etc/letsencrypt/credentials.ini \
