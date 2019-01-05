@@ -52,7 +52,7 @@ if [ ! -z "$1" ]; then
     --preferred-challenges dns-01 \
     --server https://acme-v02.api.letsencrypt.org/directory \
     --email ${EMAIL} \
-    -d $1 \
+    -d $1 -d *.$1 \
     --agree-tos
 elif [[ "${DOMAIN}" != "server.tld" ]]; then
     if [ ! -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ]; then
