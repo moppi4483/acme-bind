@@ -61,7 +61,7 @@ elif [[ "${DOMAIN}" != "server.tld" ]]; then
         --preferred-challenges dns-01 \
         --server https://acme-v02.api.letsencrypt.org/directory \
         --email ${EMAIL} \
-        -d *.${DOMAIN} \
+        -d ${DOMAIN} -d *.${DOMAIN}\
         --agree-tos
 
         if [ -f /etc/letsencrypt/live/${DOMAIN}/cert.pem ]; then
