@@ -5,7 +5,7 @@ ENV EMAIL your@mail.addr
 
 ADD entrypoint.sh /entrypoint.sh
 RUN apk update  \
-    && apk add --no-cache bind bind-tools py-pip certbot acme-client openssl ca-certificates \
+    && apk add --no-cache bind bind-tools py-pip certbot openssl ca-certificates \
     && rm -rf /var/cache/apk/* \
     && mkdir -m 0770 -p /etc/bind && chown -R root:named /etc/bind \
     && mkdir -m 0770 -p /var/cache/bind && chown -R root:named /var/cache/bind \
