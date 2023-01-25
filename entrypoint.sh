@@ -10,7 +10,7 @@ fi
 
 # generate tsig key for update TXT record, if not exists
 if [[ ! -f /etc/letsencrypt/credentials.ini ]]; then
-    b=$(tsig-keygen -a hmac-sha512 -r /dev/urandom)
+    b=$(tsig-keygen -a hmac-sha512)
     mykey=$(echo $b | sed -r "s/(.*)secret \"(.*)\"(.*)$/\2/g")
     cat > /etc/bind/acme.key <<EOF
 key "acme" {
