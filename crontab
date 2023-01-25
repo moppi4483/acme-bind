@@ -1,2 +1,2 @@
-0 2 1 */2 * /usr/bin/certbot renew --no-self-upgrade
+0 5 1 * * /usr/bin/certbot renew --no-self-upgrade
 * * * * * /dyndns.sh >/dev/null 2>&1
